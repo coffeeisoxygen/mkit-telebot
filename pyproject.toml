@@ -39,12 +39,11 @@ package = true
 
 [dependency-groups]
 dev = [
-    "pre-commit>=4.2.0",
+    "ruff>=0.11.13",
     "pytest>=8.4.0",
     "pytest-cov>=6.2.1",
     "pytest-html>=4.1.1",
     "pytest-mock>=3.14.1",
-    "ruff>=0.11.13",
     "schemathesis>=4.0.15",
     "pytest-asyncio>=1.1.0",
 ]
