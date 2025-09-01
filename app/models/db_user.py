@@ -1,4 +1,6 @@
-from sqlalchemy import Boolean, Integer, String
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models import Base
@@ -19,3 +21,6 @@ class User(Base):
     )
     is_active: Mapped[bool] = mapped_column(__name_pos=Boolean(), default=True)
     is_superuser: Mapped[bool] = mapped_column(__name_pos=Boolean(), default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        __name_pos=DateTime(), default=datetime.now
+    )
