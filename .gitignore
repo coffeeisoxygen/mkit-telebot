@@ -61,3 +61,4 @@ user_info.json
 *.prompt.md
 *.chatmode.md
 app/_version.py
+.env.test
