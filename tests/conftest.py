@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pytest
@@ -33,6 +34,10 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
     """
     config_path = Path(__file__).parent.parent / "config_log.yaml"
     setup_logging(config_path=config_path, env="test")
+
+    # Silence noisy libraries
+    for noisy_logger in ["aiosqlite", "asyncio"]:
+        logging.getLogger(noisy_logger).setLevel(logging.INFO)
 
     handler_id = logger.add(
         sink=caplog.handler,

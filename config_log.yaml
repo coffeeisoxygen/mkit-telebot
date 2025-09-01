@@ -42,6 +42,7 @@ extra:
 activation:
   - ["uvicorn.watchfiles", false]
   - ["aiosqlite", false]
+  - ["asyncio", false]
   - ["uvicorn.protocols", false]
   - ["watchfiles", false]
   - ["another_library.module", true]
