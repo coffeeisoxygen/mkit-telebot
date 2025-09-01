@@ -1,0 +1,46 @@
+# extending the Setup
+#TODO: Integrasi Dengan Pyndatic Settings Biar Nyaman
+masking:
+  enabled: true # swithcer gloal masking
+  mask_message: true # aktifkan masking di message
+  mask_extra: true # aktifkan masking di extra
+  default_mask: "XXXXXXXX"
+  mask_regex:
+    credit_card: "\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b"
+    email: "\\b[\\w.-]+@[\\w.-]+\\.\\w+\\b"
+    password: "(?i)password\\s*:\\s*\\S+"
+    token: "(?i)token\\s*:\\s*\\S+"
+  mask_fields: ["password", "token", "secret", "card"]
+
+# propogate Handler Setup
+propogate:
+  enabled: true # swith global
+  level_to_pass: "INFO"
+  loggers_name:
+    [
+      "uvicorn",
+      "uvicorn.access",
+      "uvicorn.error",
+      "fastapi",
+      "asyncio",
+      "starlette",
+    ]
+
+# Loguru Default Config
+handlers:
+  # Handler utama untuk info/debug (tanpa traceback/stackprinter)
+  - sink: ext://sys.stdout
+    level: "DEBUG"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | <l>{extra}</>"
+    enqueue: true
+    diagnose: true
+    backtrace: true
+
+extra:
+  env: "override me please"
+# silent log from certain libraries
+activation:
+  - ["uvicorn.watchfiles", false]
+  - ["uvicorn.protocols", false]
+  - ["watchfiles", false]
+  - ["another_library.module", true]
