@@ -2,7 +2,7 @@ from loguru import logger
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 # Replace with your actual bot token
-TOKEN = "8489362184:AAGQRRSMR0y_O8fYAlVwGyxakTlTS5rHaQA"
+TOKEN = "yourtokenhere"
 
 logger.add("bot.log", rotation="1 week", retention="1 month")
 
