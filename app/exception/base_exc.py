@@ -1,9 +1,5 @@
 from typing import Any
 
-from app.config import get_settings
-
-APP_NAME = get_settings().APP.name
-
 
 class AppExceptionError(Exception):
     """Base exception with adapter support and proper chaining."""
@@ -14,7 +10,7 @@ class AppExceptionError(Exception):
     def __init__(
         self,
         message: str | None = None,
-        name: str = APP_NAME,
+        name: str = "ApplicationError",
         context: dict[str, Any] | None = None,
         cause: Exception | None = None,
     ):
