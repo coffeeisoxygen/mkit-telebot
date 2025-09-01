@@ -127,7 +127,7 @@ async def test_transaction_commit_and_rollback():
 
 
 @pytest.mark.asyncio
-async def test_sessionmanager_connect_and_close(restore_sessionmanager):
+async def test_sessionmanager_connect_and_close(restore_sessionmanager):  # noqa: ARG001
     # Test connect
     async with sessionmanager.connect() as conn:
         assert conn is not None

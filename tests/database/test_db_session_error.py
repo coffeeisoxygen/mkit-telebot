@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.mark.asyncio
-async def test_sessionmanager_connect_engine_none(monkeypatch, restore_sessionmanager):
+async def test_sessionmanager_connect_engine_none(monkeypatch, restore_sessionmanager):  # noqa: ARG001
     # Simulate engine None
     monkeypatch.setattr(sessionmanager, "engine", None)
     with pytest.raises(InternalServiceError):
@@ -15,7 +15,8 @@ async def test_sessionmanager_connect_engine_none(monkeypatch, restore_sessionma
 
 @pytest.mark.asyncio
 async def test_sessionmanager_session_sessionmaker_none(
-    monkeypatch, restore_sessionmanager
+    monkeypatch,
+    restore_sessionmanager,  # noqa: ARG001
 ):
     # Simulate sessionmaker None
     monkeypatch.setattr(sessionmanager, "_sessionmaker", None)
