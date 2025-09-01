@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.exception import AppExceptionError
+from app.custom.exception.base_exc import AppExceptionError
 
 
 def register_exception_handlers(app) -> None:  # noqa: ANN001

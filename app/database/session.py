@@ -62,7 +62,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.config import get_settings
-from app.exception import InternalServiceError
+from app.custom.exception import InternalServiceError
 
 settings = get_settings()
 
