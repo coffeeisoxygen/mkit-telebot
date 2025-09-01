@@ -47,6 +47,18 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
     logger.remove(handler_id)
 
 
+@pytest.fixture
+def restore_sessionmanager():
+    """
+    Restore sessionmanager.engine and _sessionmaker after patching in tests.
+    """
+    orig_engine = sessionmanager.engine
+    orig_sessionmaker = sessionmanager._sessionmaker
+    yield
+    sessionmanager.engine = orig_engine
+    sessionmanager._sessionmaker = orig_sessionmaker
+
+
 @pytest.fixture(scope="session", autouse=True)
 async def setup_database():
     """Create all tables before running tests."""

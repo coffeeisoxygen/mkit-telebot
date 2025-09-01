@@ -5,25 +5,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 @pytest.mark.asyncio
-async def test_sessionmanager_connect_engine_none(monkeypatch):
+async def test_sessionmanager_connect_engine_none(monkeypatch, restore_sessionmanager):
     # Simulate engine None
     monkeypatch.setattr(sessionmanager, "engine", None)
     with pytest.raises(InternalServiceError):
         async with sessionmanager.connect():
             pass
-    # Restore engine
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
 
 
 @pytest.mark.asyncio
-async def test_sessionmanager_session_sessionmaker_none(monkeypatch):
+async def test_sessionmanager_session_sessionmaker_none(monkeypatch, restore_sessionmanager):
     # Simulate sessionmaker None
     monkeypatch.setattr(sessionmanager, "_sessionmaker", None)
     with pytest.raises(InternalServiceError):
         async with sessionmanager.session():
             pass
-    # Restore sessionmaker
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
 
 
 @pytest.mark.asyncio
