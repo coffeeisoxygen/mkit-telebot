@@ -1,4 +1,3 @@
-import pytest
 from app.custom.exception.base_exc import AppExceptionError
 
 
