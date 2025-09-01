@@ -1,6 +1,6 @@
 from typing import Any
 
-from app.exception.base_exc import AppExceptionError
+from app.custom.exception.base_exc import AppExceptionError
 
 
 class RequestValidationError(AppExceptionError):
