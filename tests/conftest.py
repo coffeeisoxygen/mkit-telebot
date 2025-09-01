@@ -3,9 +3,9 @@ from pathlib import Path
 
 import pytest
 from app.config import get_settings
+from app.custom.exception import register_exception_handlers
 from app.custom.mlogging.setup import setup_logging
 from app.database import create_tables, sessionmanager
-from app.exception import register_exception_handlers
 from fastapi import FastAPI
 from loguru import logger
 
