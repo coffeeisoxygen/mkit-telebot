@@ -127,7 +127,7 @@ async def test_transaction_commit_and_rollback():
 
 
 @pytest.mark.asyncio
-async def test_sessionmanager_connect_and_close():
+async def test_sessionmanager_connect_and_close(restore_sessionmanager):
     # Test connect
     async with sessionmanager.connect() as conn:
         assert conn is not None
@@ -135,9 +135,4 @@ async def test_sessionmanager_connect_and_close():
     await sessionmanager.close()
     assert sessionmanager.engine is None
     assert sessionmanager._sessionmaker is None
-    # Re-init for other tests
-    sessionmanager.__init__(
-        sessionmanager.engine.url
-        if sessionmanager.engine
-        else "sqlite+aiosqlite:///telebot.db"
-    )
+    # State will be restored by fixture
