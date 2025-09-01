@@ -6,6 +6,7 @@ from app.custom.mlogging.setup import setup_logging
 from app.database import create_tables, sessionmanager
 from app.exception import register_exception_handlers
 from fastapi import FastAPI
+from loguru import logger
 
 
 @pytest.fixture(scope="function", autouse=True)
@@ -26,13 +27,21 @@ def test_settings():
 
 
 @pytest.fixture(autouse=True)
-def intercept_loguru():
+def intercept_loguru(caplog: pytest.LogCaptureFixture):
     """
-    Use the main loguru config for tests, for consistent logging integration.
+    Use the main loguru config for tests, and add a temporary loguru handler for caplog so loguru logs are captured by pytest.
     """
     config_path = Path(__file__).parent.parent / "config_log.yaml"
     setup_logging(config_path=config_path, env="test")
+
+    handler_id = logger.add(
+        sink=caplog.handler,
+        level="DEBUG",
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        enqueue=False,
+    )
     yield
+    logger.remove(handler_id)
 
 
 @pytest.fixture(scope="session", autouse=True)
