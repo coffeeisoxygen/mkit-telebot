@@ -3,10 +3,8 @@ from pathlib import Path
 
 import pytest
 from app.config import get_settings
-from app.custom.exception import register_exception_handlers
 from app.custom.mlogging.setup import setup_logging
 from app.database import create_tables, sessionmanager
-from fastapi import FastAPI
 from loguru import logger
 
 
@@ -60,10 +58,3 @@ async def db_session():
     """Yield an async database session for tests."""
     async with sessionmanager.session() as session:
         yield session
-
-
-@pytest.fixture
-def app_with_exception():
-    app = FastAPI()
-    register_exception_handlers(app)
-    return app
