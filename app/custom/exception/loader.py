@@ -1,6 +1,5 @@
 # ruff: Noqa
 from fastapi import Request
-from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -39,20 +38,11 @@ def register_exception_handlers(app) -> None:  # noqa: ANN001
     async def validation_exception_handler(
         request: Request, exc: RequestValidationError
     ):
-        # Mengambil errors dari Pydantic
-        errors = jsonable_encoder(exc.errors())
-
-        # Membuat pesan error yang diseragamkan
-        # Anda bisa menyederhanakan format di sini sesuai kebutuhan
-        error_message = "Validation failed for the request body."
-
         return JSONResponse(
             status_code=422,
             content={
-                "name": "ValidationError",
-                "message": error_message,
-                "status_code": 422,
-                "context": {"errors": errors},
-                "cause": None,
+                "name": "RequestValidationError",
+                "message": str(exc),
+                "errors": exc.errors() if hasattr(exc, "errors") else None,
             },
         )
