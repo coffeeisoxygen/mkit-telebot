@@ -4,13 +4,11 @@ from app.database.session import sessionmanager
 
 
 @pytest.mark.asyncio
-async def test_db_health_check_engine_none(monkeypatch):
+async def test_db_health_check_engine_none(monkeypatch, restore_sessionmanager):
     monkeypatch.setattr(sessionmanager, "engine", None)
     result = await utils.db_health_check()
     assert result["status"] == "error"
     assert "Engine is not initialized" in result["details"]
-    # Restore engine
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
 
 
 @pytest.mark.asyncio
@@ -21,34 +19,31 @@ async def test_db_health_check_success():
 
 
 @pytest.mark.asyncio
-async def test_db_health_check_error(monkeypatch):
+async def test_db_health_check_error(monkeypatch, restore_sessionmanager):
+    class DummyConn:
+        async def __aenter__(self):
+            raise Exception("Simulated error")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
     class DummyEngine:
-        async def connect(self):
-            class DummyConn:
-                async def __aenter__(self):
-                    raise Exception("Simulated error")
-
-                async def __aexit__(self, exc_type, exc, tb):
-                    pass
-
+        def connect(self):
             return DummyConn()
 
     monkeypatch.setattr(sessionmanager, "engine", DummyEngine())
     result = await utils.db_health_check()
     assert result["status"] == "error"
     assert "Simulated error" in result["details"]
-    # Restore engine
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
 
 
 @pytest.mark.asyncio
-async def test_db_performance_metrics_engine_none(monkeypatch):
+async def test_db_performance_metrics_engine_none(monkeypatch, restore_sessionmanager):
     monkeypatch.setattr(sessionmanager, "engine", None)
     result = await utils.db_performance_metrics()
     assert result["status"] == "error"
     assert result["ping_time_ms"] is None
     assert "Engine is not initialized" in result["details"]
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
 
 
 @pytest.mark.asyncio
@@ -59,16 +54,16 @@ async def test_db_performance_metrics_success():
 
 
 @pytest.mark.asyncio
-async def test_db_performance_metrics_error(monkeypatch):
+async def test_db_performance_metrics_error(monkeypatch, restore_sessionmanager):
+    class DummyConn:
+        async def __aenter__(self):
+            raise Exception("Simulated error")
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
     class DummyEngine:
-        async def connect(self):
-            class DummyConn:
-                async def __aenter__(self):
-                    raise Exception("Simulated error")
-
-                async def __aexit__(self, exc_type, exc, tb):
-                    pass
-
+        def connect(self):
             return DummyConn()
 
     monkeypatch.setattr(sessionmanager, "engine", DummyEngine())
@@ -76,4 +71,3 @@ async def test_db_performance_metrics_error(monkeypatch):
     assert result["status"] == "error"
     assert "Simulated error" in result["details"]
     assert isinstance(result["ping_time_ms"], float)
-    sessionmanager.__init__("sqlite+aiosqlite:///telebot.db")
