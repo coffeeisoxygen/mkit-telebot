@@ -7,7 +7,7 @@ pytestmark = pytest.mark.unit
 
 
 @pytest.fixture
-async def repo(db_session):
+async def repo(db_session):  # noqa: RUF029
     return UserRepository(db_session)
 
 
@@ -43,7 +43,7 @@ async def test_create_and_get_by_id(repo, user_data):
 
 @pytest.mark.asyncio
 async def test_get_by_username(repo, user_data):
-    user = await repo.create(user_data)
+    user = await repo.create(user_data)  # noqa: F841
     await repo.session.commit()
     found = await repo.get_by_username(user_data["username"])
     assert found is not None
