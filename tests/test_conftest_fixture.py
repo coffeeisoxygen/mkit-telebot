@@ -1,14 +1,14 @@
-from app.config.cfg_core import Settings
-from app.config.cfg_env import EnvironmentEnums
+from app.config.settings import Settings
+from app.config.values import EnvironmentEnums
 from loguru import logger
 
 
 def test_test_settings_fixture(test_settings: Settings):
     """Ensure test_settings fixture returns correct values for testing."""
     # Adjusted to match nested config structure
-    assert test_settings.APP.environment == EnvironmentEnums.TESTING
-    assert isinstance(test_settings.APP.debug, bool)
-    assert isinstance(test_settings.APP.name, str)
+    assert test_settings.ENV.environment == EnvironmentEnums.TESTING
+    assert isinstance(test_settings.ENV.debug, bool)
+    assert isinstance(test_settings.ENV.name, str)
 
 
 def test_loguru_intercept(caplog):

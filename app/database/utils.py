@@ -5,7 +5,7 @@ import time
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from app.database.core.session import sessionmanager
+from app.database.session import sessionmanager
 
 
 async def db_health_check(engine: AsyncEngine | None = None) -> dict:
