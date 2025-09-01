@@ -1,0 +1,18 @@
+{
+  "response_time": [
+    {
+      "value": 0.234,
+      "timestamp": 1756731543.189383
+    },
+    {
+      "value": 0.189,
+      "timestamp": 1756731543.190673
+    }
+  ],
+  "active_users": [
+    {
+      "value": 1523,
+      "timestamp": 1756731543.190837
+    }
+  ]
+}
