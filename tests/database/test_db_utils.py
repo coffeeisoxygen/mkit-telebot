@@ -1,3 +1,4 @@
+# ruff: noqa
 import pytest
 from app.database import utils
 from app.database.session import sessionmanager
