@@ -12,7 +12,9 @@ class User(Base):
     id: Mapped[int] = mapped_column(
         __name_pos=Integer(), primary_key=True, autoincrement=True
     )
-    username: Mapped[str] = mapped_column(__name_pos=String(length=100), nullable=False)
+    username: Mapped[str] = mapped_column(
+        __name_pos=String(length=100), nullable=False, unique=True
+    )
     full_name: Mapped[str] = mapped_column(
         __name_pos=String(length=100), nullable=False
     )

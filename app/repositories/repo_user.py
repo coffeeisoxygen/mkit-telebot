@@ -11,9 +11,19 @@ class UserRepository:
 
     async def create(self, obj_in: dict) -> Db_User:
         """Menciptakan entitas User baru di database."""
+        from sqlalchemy.exc import IntegrityError
+
+        from app.custom.exception.exceptions import UserDuplicateError
+
         db_user = Db_User(**obj_in)
         self.session.add(db_user)
-        await self.session.flush()
+        try:
+            await self.session.flush()
+        except IntegrityError as e:
+            raise UserDuplicateError(
+                message=f"User dengan username '{obj_in.get('username')}' sudah ada.",
+                context={"username": obj_in.get("username")},
+            ) from e
         return db_user
 
     async def get_by_id(self, obj_id: int) -> Db_User | None:

@@ -168,11 +168,20 @@ class DatabaseSessionManager:
             except SQLAlchemyError as e:
                 await session.rollback()
                 db_url = str(self.engine.url) if self.engine else "N/A"
+                # Jika error custom, langsung raise
+                from app.custom.exception.base_exc import AppExceptionError
+
+                if isinstance(e, AppExceptionError):
+                    raise
                 logger.bind(method="session", db_url=db_url).exception("Session error")
                 raise InternalServiceError(message=str(e), cause=e) from e
             except Exception as e:
                 await session.rollback()
                 db_url = str(self.engine.url) if self.engine else "N/A"
+                from app.custom.exception.base_exc import AppExceptionError
+
+                if isinstance(e, AppExceptionError):
+                    raise
                 logger.bind(method="session", db_url=db_url).exception(
                     "Unexpected session error"
                 )
