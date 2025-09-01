@@ -7,6 +7,12 @@ from loguru import logger
 importlib.import_module("app.custom.mlogging.setup")
 
 
+def test_loguru_intercept(caplog):
+    """Ensure loguru logs are intercepted and can be asserted via caplog."""
+    logger.info("Hello from loguru!")
+    assert "Hello from loguru!" in caplog.text
+
+
 def test_standard_logging_forwarded_to_loguru(caplog):
     """Test that standard logging messages are forwarded to loguru and captured by caplog."""
     logging.getLogger().info("Standard logging info message")

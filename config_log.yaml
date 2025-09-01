@@ -41,6 +41,7 @@ extra:
 # silent log from certain libraries
 activation:
   - ["uvicorn.watchfiles", false]
+  - ["aiosqlite", false]
   - ["uvicorn.protocols", false]
   - ["watchfiles", false]
   - ["another_library.module", true]
