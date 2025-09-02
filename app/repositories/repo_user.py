@@ -60,11 +60,11 @@ class UserRepository:
         await self.session.flush()
         return True
 
-    async def deactivate(self, obj_id: int) -> Db_User | None:
-        """Set user jadi inactive, return None kalau gak ada."""
+    async def set_active(self, obj_id: int, is_active: bool = False) -> Db_User | None:
+        """Set user jadi active/inactive, return None kalau gak ada."""
         db_user = await self.get_by_id(obj_id)
         if not db_user:
             return None
-        db_user.is_active = False
+        db_user.is_active = is_active
         await self.session.flush()
         return db_user

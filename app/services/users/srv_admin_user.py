@@ -11,8 +11,8 @@ class AdminUserService:
     def __init__(
         self, user_repository: UserRepository, password_hasher: IPasswordHasher
     ):
-        self.user_repository = user_repository
-        self.password_hasher = password_hasher
+        self.user_repository: UserRepository = user_repository
+        self.password_hasher: IPasswordHasher = password_hasher
 
     async def seed_default_admin(self) -> UserAdminResponse | None:
         """Membuat admin default jika belum ada superuser di database.
