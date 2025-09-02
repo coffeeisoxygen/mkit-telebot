@@ -1,8 +1,8 @@
+import asyncio
 import logging
 from pathlib import Path
 
 import pytest
-import asyncio
 from app.config import get_settings
 from app.custom.mlogging.setup import setup_logging
 from app.database import DatabaseSessionManager, create_tables, sessionmanager
