@@ -80,7 +80,7 @@ def get_auth_service(
 
 
 # OAuth2PasswordBearer dependency
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/token")
 
 
 # Dependency untuk get_current_user
