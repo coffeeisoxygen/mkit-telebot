@@ -16,22 +16,21 @@ async def seed_default_admin(
     Return True jika berhasil, False jika sudah ada atau gagal.
     """
     log = logger.bind(action="seed_admin", username=config.username)
-    log.info("Cek user di database...")
+    log.info("Cek superuser aktif di database...")
 
     async with repo.session.begin():
+        superuser = await repo.get_active_superuser()
+        log = log.bind(superuser_exists=bool(superuser))
+        if superuser:
+            log.info("Sudah ada superuser aktif, tidak perlu seed.")
+            return False
+
+        log.info("Belum ada superuser aktif, cek username...")
         existing = await repo.get_by_username(config.username)
         log = log.bind(existing=bool(existing))
         if existing:
-            log = log.bind(
-                is_superuser=getattr(existing, "is_superuser", None),
-                is_active=getattr(existing, "is_active", None),
-            )
-            if existing.is_superuser and existing.is_active:
-                log.info("Superuser aktif sudah ada, tidak perlu seed.")
-                return False
-            else:
-                log.warning("User sudah ada, tapi belum superuser aktif.")
-                return False
+            log.warning("Username admin sudah dipakai user lain, seed dibatalkan.")
+            return False
 
         admin_data = {
             "username": config.username,
@@ -50,7 +49,7 @@ async def seed_default_admin(
             return False
         except Exception as exc:
             log = log.bind(error=str(exc))
-            log.error("Gagal membuat default admin.")
+            log.exception("Gagal membuat default admin.")
             raise
         else:
             log.info("Default admin berhasil dibuat.")
