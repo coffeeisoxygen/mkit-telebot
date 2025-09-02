@@ -59,3 +59,9 @@ class ConfigAdminAccount(BaseSettings):
     password: str = "admin123"
     is_superuser: bool = True
     is_active: bool = True
+
+
+class ConfigJwt(BaseSettings):
+    secret_key: str = "your secret token"  # overided with .env this is just placholder
+    algorithm: str = "HS256"
+    access_token_expires: int = 3600  # 1 hour using seconds ya
