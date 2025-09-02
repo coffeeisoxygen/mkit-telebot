@@ -41,6 +41,13 @@ class InternalServiceError(AppExceptionError):
     status_code: int | None = 500
 
 
+class DataBaseServiceError(InternalServiceError):
+    """Exception untuk kesalahan layanan database."""
+
+    default_message: str = "Database service error occurred."
+    status_code: int | None = 500
+
+
 class EntityNotFoundError(InternalServiceError):
     """Exception untuk entitas yang tidak ditemukan."""
 

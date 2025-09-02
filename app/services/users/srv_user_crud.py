@@ -1,36 +1,54 @@
 from loguru import logger
+from sqlalchemy.exc import IntegrityError
 
 from app.custom.exception.exceptions import UserDuplicateError
-from app.repositories.repo_user import Db_User, UserRepository
+from app.models import User as Db_User
+from app.repositories.repo_user import UserRepository
+from app.schemas.sch_user import UserCreate, UserPublicResponse
 from app.services.hasher.interface import IPasswordHasher
-from app.services.users.schemas import UserCreate
 
 
-class UserService:
+class UserCrudService:
     def __init__(
-        self, user_repository: UserRepository, password_hasher: IPasswordHasher
+        self,
+        user_repository: UserRepository,
+        password_hasher: IPasswordHasher,
     ):
         self.user_repository: UserRepository = user_repository
         self.password_hasher: IPasswordHasher = password_hasher
 
     @logger.catch
-    async def create_user(self, user_data: UserCreate) -> Db_User:
-        from sqlalchemy.exc import IntegrityError
+    async def create_user(self, user_data: UserCreate) -> UserPublicResponse:
+        # cek duplicate
+        existing = await self.user_repository.get_by_username(user_data.username)
+        if existing:
+            raise UserDuplicateError(
+                message=f"Username {user_data.username} sudah terpakai.",
+                context={"username": user_data.username},
+            )  # tidak perlu chaining di sini
 
-        # Ubah objek Pydantic menjadi dictionary yang dapat dimodifikasi
-        user_data_dict = user_data.model_dump()
+        # hash password
+        hashed_password = self.password_hasher.hash_password(user_data.password)
 
-        # Hashing password dan mengganti nilai di dictionary
-        plain_password = user_data_dict.pop("password")
-        if plain_password:
-            user_data_dict["hashed_password"] = self.password_hasher.hash_password(
-                plain_password
-            )
+        # prepare dict untuk repo
+        user_data_dict = user_data.model_dump(exclude={"password"})
+        user_data_dict["hashed_password"] = hashed_password
 
         try:
-            return await self.user_repository.create(user_data_dict)
-        except IntegrityError as e:
+            new_user: Db_User = await self.user_repository.create(user_data_dict)
+            await self.user_repository.session.commit()
+            logger.info(f"User {new_user.username} berhasil dibuat.")
+            return UserPublicResponse.model_validate(new_user)
+        except IntegrityError:
+            await self.user_repository.session.rollback()
+            logger.error(
+                f"Username {user_data.username} sudah terpakai (IntegrityError)."
+            )
             raise UserDuplicateError(
-                message=f"User dengan username '{user_data.username}' sudah ada.",
+                message=f"Username {user_data.username} sudah terpakai.",
                 context={"username": user_data.username},
-            ) from e
+            ) from None
+        except Exception as e:
+            await self.user_repository.session.rollback()
+            logger.error(f"Error saat membuat user: {e}")
+            raise
