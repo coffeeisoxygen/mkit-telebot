@@ -34,8 +34,6 @@ async def seed_default_admin(
     try:
         await repo.create(admin_data)
         await repo.session.commit()
-        logger.info(f"Default admin '{config.username}' berhasil dibuat.")
-        return True
     except IntegrityError:
         await repo.session.rollback()
         logger.warning(f"Admin '{config.username}' sudah ada (race condition).")
@@ -44,3 +42,6 @@ async def seed_default_admin(
         await repo.session.rollback()
         logger.error(f"Gagal membuat default admin: {exc}")
         return False
+    else:
+        logger.info(f"Default admin '{config.username}' berhasil dibuat.")
+        return True
