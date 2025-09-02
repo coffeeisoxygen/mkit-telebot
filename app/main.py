@@ -33,7 +33,7 @@ sessionmanager = DatabaseSessionManager(settings.DB.url)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Application starting up.")
-
+    logger.info(f"ADM config: {settings.ADM.model_dump()}")
     async with sessionmanager.session() as db_session:
         repo = UserRepository(db_session)
         hasher = Argon2Hasher()
