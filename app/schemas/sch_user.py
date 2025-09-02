@@ -34,3 +34,12 @@ class UserPublicResponse(UserBase):
 
 class UserListResponse(BaseModel):
     users: list[UserPublicResponse]
+
+
+class UserAdminSeed(UserCreate):
+    is_superuser: bool = True
+    is_active: bool = True
+
+
+class UserAdminResponse(UserInDB):
+    pass
