@@ -9,7 +9,7 @@ class UserRepository:
         self.session: AsyncSession = session
 
     async def create(self, obj_in: dict) -> Db_User:
-        """Insert user baru ke database (tanpa commit)."""
+        """Insert user baru ke database (tanpa commit, biar service yang handle)."""
         db_user = Db_User(**obj_in)
         self.session.add(db_user)
         await self.session.flush()  # dapat id dari DB

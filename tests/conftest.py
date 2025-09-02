@@ -65,7 +65,7 @@ async def setup_database():
     await create_tables(sessionmanager.engine)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="module")
 async def db_session():
     """Yield an async database session for tests."""
     async with sessionmanager.session() as session:

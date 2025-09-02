@@ -17,7 +17,7 @@ class DummyHasher(IPasswordHasher):
         return hashed_password == f"hashed-{password}"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 async def clean_user_table(db_session):
     await db_session.execute(text("DELETE FROM users"))
     await db_session.commit()
