@@ -45,10 +45,17 @@ async def test_create_user_success(user_service, user_create_data):
 
 
 @pytest.mark.asyncio
-async def test_create_user_duplicate(user_service, user_create_data):
-    await user_service.create_user(user_create_data)
+@pytest.mark.parametrize(
+    "username",
+    ["testuser", "anotheruser", "dupeuser"],
+)
+async def test_create_user_duplicate(user_service, username):
+    user_data = UserCreate(
+        username=username, full_name="Test User", password="secretpass"
+    )
+    await user_service.create_user(user_data)
     with pytest.raises(UserDuplicateError):
-        await user_service.create_user(user_create_data)
+        await user_service.create_user(user_data)
 
 
 @pytest.mark.asyncio

@@ -1,5 +1,4 @@
 import pytest
-from app.custom.exception.exceptions import UserNotFoundError
 from app.repositories.repo_user import UserRepository
 from sqlalchemy import text
 
@@ -66,8 +65,9 @@ async def test_delete_user(repo, user_data):
     result = await repo.delete(user.id)
     await repo.session.commit()
     assert result is True
-    with pytest.raises(UserNotFoundError):
-        await repo.delete(user.id)
+    # Delete lagi harus return False, bukan raise exception
+    result2 = await repo.delete(user.id)
+    assert result2 is False
 
 
 @pytest.mark.asyncio
@@ -87,11 +87,11 @@ async def test_list_and_filter_active(repo, user_data):
 
 @pytest.mark.asyncio
 async def test_update_not_found(repo):
-    with pytest.raises(UserNotFoundError):
-        await repo.update(9999, {"full_name": "Should Fail"})
+    result = await repo.update(9999, {"full_name": "Should Fail"})
+    assert result is None
 
 
 @pytest.mark.asyncio
 async def test_delete_not_found(repo):
-    with pytest.raises(UserNotFoundError):
-        await repo.delete(9999)
+    result = await repo.delete(9999)
+    assert result is False

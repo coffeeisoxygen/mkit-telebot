@@ -39,15 +39,16 @@ class UserCrudService:
             await self.user_repository.session.commit()
             logger.info(f"User {new_user.username} berhasil dibuat.")
             return UserPublicResponse.model_validate(new_user)
-        except IntegrityError:
+        except IntegrityError as exc:
             await self.user_repository.session.rollback()
             logger.error(
-                f"Username {user_data.username} sudah terpakai (IntegrityError)."
+                f"Username {user_data.username} sudah terpakai (IntegrityError): {exc}"
             )
             raise UserDuplicateError(
                 message=f"Username {user_data.username} sudah terpakai.",
                 context={"username": user_data.username},
-            ) from None
+                cause=exc,
+            ) from exc
         except Exception as e:
             await self.user_repository.session.rollback()
             logger.error(f"Error saat membuat user: {e}")

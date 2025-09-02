@@ -1,10 +1,14 @@
 import pytest
 from app.models.db_user import User
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 
 @pytest.mark.asyncio
 async def test_create_and_cleanup_user(db_session):
+    # Bersihkan tabel users sebelum test
+    await db_session.execute(text("DELETE FROM users"))
+    await db_session.commit()
+
     # Create user
     new_user = User(
         username="testuser",
