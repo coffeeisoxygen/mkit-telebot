@@ -14,18 +14,17 @@ class DatabaseSessionManager:
     """Manages async database connections and sessions."""
 
     def __init__(self, db_url: str):
-        self.engine = create_async_engine(
-            url=db_url,
-            echo=settings.DB.echo,
-            connect_args={"timeout": settings.DB.timeout},
-            # Conditionally set pool args for non-SQLite
-            pool_size=settings.DB.pool_size
-            if not db_url.startswith("sqlite")
-            else None,
-            max_overflow=settings.DB.max_overflow
-            if not db_url.startswith("sqlite")
-            else None,
-        )
+        engine_kwargs = {
+            "url": db_url,
+            "echo": settings.DB.echo,
+            "connect_args": {"timeout": settings.DB.timeout},
+        }
+        if not db_url.startswith("sqlite"):
+            if settings.DB.pool_size is not None:
+                engine_kwargs["pool_size"] = settings.DB.pool_size
+            if settings.DB.max_overflow is not None:
+                engine_kwargs["max_overflow"] = settings.DB.max_overflow
+        self.engine = create_async_engine(**engine_kwargs)
         self._sessionmaker = async_sessionmaker(
             bind=self.engine,
             expire_on_commit=False,
