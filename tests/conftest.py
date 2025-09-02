@@ -2,9 +2,10 @@ import logging
 from pathlib import Path
 
 import pytest
+import asyncio
 from app.config import get_settings
 from app.custom.mlogging.setup import setup_logging
-from app.database import create_tables, sessionmanager
+from app.database import DatabaseSessionManager, create_tables, sessionmanager
 from loguru import logger
 
 
@@ -22,6 +23,12 @@ def test_settings():
     test_env = Path(__file__).parent.parent / ".env.test"
     settings = get_settings(test_env)
     print(f" running on env {settings.ENV.environment}")  # noqa: T201
+
+    # Override sessionmanager to use test DB
+    sessionmanager.engine = DatabaseSessionManager(settings.DB.url).engine
+    sessionmanager._sessionmaker = DatabaseSessionManager(settings.DB.url)._sessionmaker
+    # Langsung create tables setelah override DB
+    asyncio.get_event_loop().run_until_complete(create_tables(sessionmanager.engine))
     return settings
 
 
