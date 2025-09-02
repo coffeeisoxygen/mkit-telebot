@@ -11,55 +11,44 @@ async def seed_default_admin(
     hasher: IPasswordHasher,
     config: ConfigAdminAccount,
 ) -> bool:
-    """Membuat admin default jika belum ada superuser aktif di database.
+    """Membuat default admin user jika belum ada superuser aktif di database.
 
-    Return True jika berhasil, False jika sudah ada superuser atau gagal.
+    Return True jika berhasil, False jika sudah ada atau gagal.
     """
-    logger.info(f"Cek user dengan username '{config.username}' di database...")
-    user = await repo.get_by_username(config.username)
-    logger.debug(f"Hasil query get_by_username: {user}")
-    if user:
-        if user.is_superuser and user.is_active:
-            logger.info(
-                f"Superuser aktif dengan username '{config.username}' sudah ada, tidak perlu seed."
-            )
-            logger.debug("Return False karena superuser sudah ada.")
+    log = logger.bind(action="seed_admin", username=config.username)
+    log.info("Cek user di database...")
+
+    async with repo.session.begin():
+        existing = await repo.get_by_username(config.username)
+        log = log.bind(existing=bool(existing))
+        if existing:
+            log = log.bind(is_superuser=getattr(existing, "is_superuser", None), is_active=getattr(existing, "is_active", None))
+            if existing.is_superuser and existing.is_active:
+                log.info("Superuser aktif sudah ada, tidak perlu seed.")
+                return False
+            else:
+                log.warning("User sudah ada, tapi belum superuser aktif.")
+                return False
+
+        admin_data = {
+            "username": config.username,
+            "full_name": config.full_name,
+            "hashed_password": hasher.hash_password(config.password),
+            "is_active": config.is_active,
+            "is_superuser": config.is_superuser,
+        }
+        log = log.bind(admin_data=admin_data)
+        try:
+            log.info("Membuat default admin...")
+            await repo.create(admin_data)
+        except IntegrityError as e:
+            log = log.bind(error=str(e))
+            log.warning("Admin sudah ada (race condition), rollback otomatis.")
             return False
+        except Exception as exc:
+            log = log.bind(error=str(exc))
+            log.error("Gagal membuat default admin.")
+            raise
         else:
-            logger.warning(
-                f"User dengan username '{config.username}' sudah ada, tapi belum superuser aktif."
-            )
-            # Optional: bisa update jadi superuser, atau hanya warning
-            return False
-
-    logger.info("Belum ada user admin, membuat default admin...")
-
-    admin_data = {
-        "username": config.username,
-        "full_name": config.full_name,
-        "hashed_password": hasher.hash_password(config.password),
-        "is_active": config.is_active,
-        "is_superuser": config.is_superuser,
-    }
-
-    try:
-        logger.debug(f"Menjalankan query create admin: {admin_data}")
-        await repo.create(admin_data)
-        logger.debug("Menjalankan commit session.")
-        await repo.session.commit()
-    except IntegrityError:
-        logger.debug("IntegrityError terjadi, rollback session.")
-        await repo.session.rollback()
-        logger.warning(f"Admin '{config.username}' sudah ada (race condition).")
-        logger.debug("Return False karena IntegrityError.")
-        return False
-    except Exception as exc:
-        logger.debug(f"Exception terjadi: {exc}, rollback session.")
-        await repo.session.rollback()
-        logger.error(f"Gagal membuat default admin: {exc}")
-        logger.debug("Return False karena Exception.")
-        return False
-    else:
-        logger.info(f"Default admin '{config.username}' berhasil dibuat.")
-        logger.debug("Return True karena admin berhasil dibuat.")
-        return True
+            log.info("Default admin berhasil dibuat.")
+            return True
