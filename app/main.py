@@ -15,7 +15,7 @@ from app.api import setup_router
 
 from contextlib import asynccontextmanager
 from app.database import DatabaseSessionManager
-from app.services.users.srv_seed_admin import seed_default_admin
+from app.services.users import seed_default_admin
 from app.repositories.repo_user import UserRepository
 from app.services.hasher.argonhasher import Argon2Hasher
 
