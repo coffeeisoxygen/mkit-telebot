@@ -50,6 +50,7 @@ def intercept_loguru(caplog: pytest.LogCaptureFixture):
         level="DEBUG",
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
         enqueue=False,
+        colorize=True,
     )
     yield
     logger.remove(handler_id)

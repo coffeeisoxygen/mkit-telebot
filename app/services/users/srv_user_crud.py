@@ -17,39 +17,43 @@ class UserCrudService:
         self.user_repository: UserRepository = user_repository
         self.password_hasher: IPasswordHasher = password_hasher
 
-    @logger.catch
     async def create_user(self, user_data: UserCreate) -> UserPublicResponse:
-        # cek duplicate
-        existing = await self.user_repository.get_by_username(user_data.username)
-        if existing:
-            raise UserDuplicateError(
-                message=f"Username {user_data.username} sudah terpakai.",
-                context={"username": user_data.username},
-            )  # tidak perlu chaining di sini
+        with logger.contextualize(username=user_data.username):
+            logger.info("Memulai proses pembuatan user.")
+            # cek duplicate
+            existing = await self.user_repository.get_by_username(user_data.username)
+            if existing:
+                logger.warning("Username sudah terpakai, raise UserDuplicateError.")
+                raise UserDuplicateError(
+                    message=f"Username {user_data.username} sudah terpakai.",
+                    context={"username": user_data.username},
+                )
 
-        # hash password
-        hashed_password = self.password_hasher.hash_password(user_data.password)
+            # hash password
+            logger.debug("Melakukan hash password.")
+            hashed_password = self.password_hasher.hash_password(user_data.password)
 
-        # prepare dict untuk repo
-        user_data_dict = user_data.model_dump(exclude={"password"})
-        user_data_dict["hashed_password"] = hashed_password
+            # prepare dict untuk repo
+            user_data_dict = user_data.model_dump(exclude={"password"})
+            user_data_dict["hashed_password"] = hashed_password
 
-        try:
-            new_user: Db_User = await self.user_repository.create(user_data_dict)
-            await self.user_repository.session.commit()
-            logger.info(f"User {new_user.username} berhasil dibuat.")
-            return UserPublicResponse.model_validate(new_user)
-        except IntegrityError as exc:
-            await self.user_repository.session.rollback()
-            logger.error(
-                f"Username {user_data.username} sudah terpakai (IntegrityError): {exc}"
-            )
-            raise UserDuplicateError(
-                message=f"Username {user_data.username} sudah terpakai.",
-                context={"username": user_data.username},
-                cause=exc,
-            ) from exc
-        except Exception as e:
-            await self.user_repository.session.rollback()
-            logger.error(f"Error saat membuat user: {e}")
-            raise
+            try:
+                logger.debug("Menyimpan user ke database.")
+                new_user: Db_User = await self.user_repository.create(user_data_dict)
+                await self.user_repository.session.commit()
+                logger.info(f"User {new_user.username} berhasil dibuat.")
+                return UserPublicResponse.model_validate(new_user)
+            except IntegrityError as exc:
+                await self.user_repository.session.rollback()
+                logger.error(
+                    f"Username {user_data.username} sudah terpakai (IntegrityError): {exc}"
+                )
+                raise UserDuplicateError(
+                    message=f"Username {user_data.username} sudah terpakai.",
+                    context={"username": user_data.username},
+                    cause=exc,
+                ) from exc
+            except Exception as e:
+                await self.user_repository.session.rollback()
+                logger.error(f"Error saat membuat user: {e}")
+                raise

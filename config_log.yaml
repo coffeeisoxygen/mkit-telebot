@@ -35,6 +35,7 @@ handlers:
     enqueue: true
     diagnose: true
     backtrace: true
+    colorize: true
 
 extra:
   env: "override me please"
