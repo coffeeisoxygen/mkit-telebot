@@ -31,6 +31,11 @@ class SessionRepository:
         res = await self.session.execute(stmt)
         return list(res.scalars().all())
 
+    async def list_active_sessions(self) -> list[Db_Session]:
+        stmt = select(Db_Session).where(Db_Session.is_active)
+        res = await self.session.execute(stmt)
+        return list(res.scalars().all())
+
     async def update_activity(
         self, obj_id: int, last_activity: datetime
     ) -> Db_Session | None:

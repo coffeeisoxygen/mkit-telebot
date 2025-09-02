@@ -12,6 +12,7 @@ class SessionCreate(BaseSessionModel):
     token: str
     ip_address: str
     user_agent: str
+    expires_at: datetime | None
 
 
 class SessionInDB(BaseSessionModel):
