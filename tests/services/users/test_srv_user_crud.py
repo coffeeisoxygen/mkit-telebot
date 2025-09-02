@@ -4,7 +4,6 @@ from app.repositories.repo_user import UserRepository
 from app.schemas.sch_user import UserCreate, UserPublicResponse
 from app.services.hasher.interface import IPasswordHasher
 from app.services.users.srv_user_crud import UserCrudService
-from sqlalchemy import text
 
 pytestmark = pytest.mark.unit
 
@@ -15,12 +14,6 @@ class DummyHasher(IPasswordHasher):
 
     def verify_password(self, password: str, hashed_password: str) -> bool:
         return hashed_password == f"hashed-{password}"
-
-
-@pytest.fixture(scope="function", autouse=True)
-async def clean_user_table(db_session):
-    await db_session.execute(text("DELETE FROM users"))
-    await db_session.commit()
 
 
 @pytest.fixture
@@ -53,7 +46,9 @@ async def test_create_user_duplicate(user_service, username):
     user_data = UserCreate(
         username=username, full_name="Test User", password="secretpass"
     )
-    await user_service.create_user(user_data)
+    user1 = await user_service.create_user(user_data)
+    assert user1.username == username
+    # Pastikan duplikasi benar-benar raise error
     with pytest.raises(UserDuplicateError):
         await user_service.create_user(user_data)
 
