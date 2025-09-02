@@ -4,7 +4,7 @@ import jwt
 from jwt import PyJWTError
 
 from app.config import get_settings
-from app.schemas import TokenData, TokenResponse
+from app.schemas import TokenData, TokenPayload, TokenResponse
 
 settings = get_settings()
 
@@ -24,15 +24,16 @@ class TokenService:
         now = datetime.now(UTC)
         expire = now + self.expires_delta
 
-        payload = {
-            "sub": str(user_id),
-            "username": username,
-            "scopes": scopes or ["user"],
-            "iat": now,
-            "exp": expire,
-        }
-
-        encoded_jwt = jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
+        payload = TokenPayload(
+            sub=str(user_id),
+            username=username,
+            scopes=scopes or ["user"],
+            iat=now,
+            exp=expire,
+        )
+        encoded_jwt = jwt.encode(
+            payload.model_dump(), self.secret_key, algorithm=self.algorithm
+        )
 
         return TokenResponse(
             access_token=encoded_jwt,
