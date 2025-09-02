@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models import User as Db_User
 from app.repositories.repo_user import UserRepository
-from app.schemas.sch_user import UserAdminSeed, UserPublicResponse
+from app.schemas.sch_user import UserAdminResponse, UserAdminSeed
 from app.services.hasher.interface import IPasswordHasher
 
 
@@ -14,13 +14,13 @@ class AdminUserService:
         self.user_repository = user_repository
         self.password_hasher = password_hasher
 
-    async def seed_default_admin(self) -> UserPublicResponse | None:
+    async def seed_default_admin(self) -> UserAdminResponse | None:
         """Membuat admin default jika belum ada superuser di database.
 
         Return UserPublicResponse jika berhasil, None jika sudah ada superuser.
         """
         logger.info("Cek keberadaan superuser di database...")
-        stmt = Db_User.__table__.select().where(Db_User.is_superuser == True)
+        stmt = Db_User.__table__.select().where(Db_User.is_superuser)
         result = await self.user_repository.session.execute(stmt)
         superuser = result.first()
         if superuser:
@@ -44,7 +44,7 @@ class AdminUserService:
             new_admin = await self.user_repository.create(admin_data)
             await self.user_repository.session.commit()
             logger.info("Default admin berhasil dibuat.")
-            return UserPublicResponse.model_validate(new_admin)
+            return UserAdminResponse.model_validate(new_admin)
         except IntegrityError as exc:
             await self.user_repository.session.rollback()
             logger.error(f"Gagal membuat default admin: {exc}")
