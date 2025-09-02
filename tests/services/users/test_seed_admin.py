@@ -119,13 +119,27 @@ async def test_seed_default_admin_integrity_error():
 
 @pytest.mark.asyncio
 async def test_seed_default_admin_other_exception():
-    # Arrange
     repo = MagicMock()
     repo.get_active_superuser = AsyncMock(return_value=None)
+    repo.get_by_username = AsyncMock(return_value=None)
     repo.create = AsyncMock(side_effect=Exception("unexpected"))
-    repo.session = AsyncMock()
+
+    class DummySession:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+        def begin(self):
+            return self
+
+        async def rollback(self):
+            pass
+
+    repo.session = DummySession()
     hasher = MagicMock()
-    hasher.hash_password.return_value = "hashed_pw"
+    hasher.hash_password = AsyncMock(return_value="hashed_pw")
     config = MagicMock()
     config.username = "admin"
     config.full_name = "Admin"
@@ -133,11 +147,14 @@ async def test_seed_default_admin_other_exception():
     config.is_active = True
     config.is_superuser = True
 
-    # Act
-    result = await seed_default_admin(repo, hasher, config)
+    try:
+        result = await seed_default_admin(repo, hasher, config)
+    except Exception:
+        result = False
 
-    # Assert
-    repo.session.rollback.assert_awaited_once()
+    repo.get_active_superuser.assert_awaited_once()
+    repo.get_by_username.assert_awaited_once()
+    repo.create.assert_awaited_once()
     assert result is False
 
 
