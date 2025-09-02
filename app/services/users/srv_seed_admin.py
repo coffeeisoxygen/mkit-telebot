@@ -22,7 +22,10 @@ async def seed_default_admin(
         existing = await repo.get_by_username(config.username)
         log = log.bind(existing=bool(existing))
         if existing:
-            log = log.bind(is_superuser=getattr(existing, "is_superuser", None), is_active=getattr(existing, "is_active", None))
+            log = log.bind(
+                is_superuser=getattr(existing, "is_superuser", None),
+                is_active=getattr(existing, "is_active", None),
+            )
             if existing.is_superuser and existing.is_active:
                 log.info("Superuser aktif sudah ada, tidak perlu seed.")
                 return False

@@ -92,3 +92,6 @@ async def cleanup_tables(db_session):
     for table in reversed(Base.metadata.sorted_tables):
         await db_session.execute(table.delete())
     await db_session.commit()
+    await db_session.close()
+    # Pastikan engine di-dispose
+    await sessionmanager.engine.dispose()
