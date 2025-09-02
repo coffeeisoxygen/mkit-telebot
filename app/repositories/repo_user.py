@@ -1,3 +1,5 @@
+from operator import and_
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -68,3 +70,8 @@ class UserRepository:
         db_user.is_active = is_active
         await self.session.flush()
         return db_user
+
+    async def get_active_superuser(self) -> Db_User | None:
+        stmt = select(Db_User).where(and_(Db_User.is_superuser, Db_User.is_active))
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()

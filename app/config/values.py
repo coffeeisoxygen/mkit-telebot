@@ -51,3 +51,11 @@ class ConfigDatabase(BaseSettings):
         default=10,
         description="Jumlah koneksi tambahan yang diizinkan saat pool penuh.",
     )
+
+
+class ConfigAdminAccount(BaseSettings):
+    username: str = "admin"
+    full_name: str = "Administrator"
+    password: str = "admin123"
+    is_superuser: bool = True
+    is_active: bool = True
