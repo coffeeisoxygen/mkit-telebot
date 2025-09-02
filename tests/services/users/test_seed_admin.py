@@ -52,7 +52,7 @@ async def test_seed_default_admin_integrity_error():
     # Arrange
     repo = MagicMock()
     repo.get_active_superuser = AsyncMock(return_value=None)
-    repo.create = AsyncMock(side_effect=IntegrityError("err", "params", "orig"))
+    repo.create = AsyncMock(side_effect=IntegrityError("err", "params", "orig"))  # type: ignore
     repo.session = AsyncMock()
     hasher = MagicMock()
     hasher.hash_password.return_value = "hashed_pw"
