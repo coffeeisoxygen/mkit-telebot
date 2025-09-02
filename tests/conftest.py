@@ -6,6 +6,7 @@ import pytest
 from app.config import get_settings
 from app.custom.mlogging.setup import setup_logging
 from app.database import DatabaseSessionManager, create_tables, sessionmanager
+from app.database.table import Base
 from loguru import logger
 
 
@@ -77,3 +78,16 @@ async def db_session():
     """Yield an async database session for tests."""
     async with sessionmanager.session() as session:
         yield session
+
+
+@pytest.fixture(scope="function", autouse=True)
+async def cleanup_tables(db_session):
+    # Cleanup semua table sebelum test
+    for table in reversed(Base.metadata.sorted_tables):
+        await db_session.execute(table.delete())
+    await db_session.commit()
+    yield
+    # Cleanup semua table setelah test
+    for table in reversed(Base.metadata.sorted_tables):
+        await db_session.execute(table.delete())
+    await db_session.commit()

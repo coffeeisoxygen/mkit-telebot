@@ -1,6 +1,5 @@
 import pytest
 from app.repositories.repo_user import UserRepository
-from sqlalchemy import text
 
 pytestmark = pytest.mark.unit
 
@@ -8,13 +7,6 @@ pytestmark = pytest.mark.unit
 @pytest.fixture
 async def repo(db_session):  # noqa: RUF029
     return UserRepository(db_session)
-
-
-@pytest.fixture(autouse=True)
-async def clean_user_table(db_session):
-    # Bersihkan tabel user sebelum setiap test
-    await db_session.execute(text("DELETE FROM users"))
-    await db_session.commit()
 
 
 @pytest.fixture
