@@ -1,3 +1,5 @@
+# ruff:noqa
+# pyright: reportOptionalMemberAccess = false
 from datetime import datetime
 
 import pytest
@@ -19,7 +21,7 @@ async def test_create_and_get_by_id(db_session):
     new_session = await repo.create(obj_in)
     assert new_session.token == "token123"
     fetched = await repo.get_by_id(new_session.id)
-    assert fetched.token == "token123"
+    assert fetched.token == "token123"  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -36,7 +38,7 @@ async def test_get_by_token(db_session):
     }
     new_session = await repo.create(obj_in)
     fetched = await repo.get_by_token("token456")
-    assert fetched.user_id == 2
+    assert fetched.user_id == 2  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -80,7 +82,7 @@ async def test_update_activity(db_session):
     }
     new_session = await repo.create(obj_in)
     updated = await repo.update_activity(new_session.id, datetime(2025, 9, 2))
-    assert updated.last_activity == datetime(2025, 9, 2)
+    assert updated.last_activity == datetime(2025, 9, 2)  # pyright: ignore[reportOptionalMemberAccess]
 
 
 @pytest.mark.asyncio
