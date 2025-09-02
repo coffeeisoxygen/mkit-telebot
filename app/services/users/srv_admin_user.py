@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.models import User as Db_User
 from app.repositories.repo_user import UserRepository
-from app.schemas.sch_user import UserPublicResponse
+from app.schemas.sch_user import UserAdminSeed, UserPublicResponse
 from app.services.hasher.interface import IPasswordHasher
 
 
@@ -16,6 +16,7 @@ class AdminUserService:
 
     async def seed_default_admin(self) -> UserPublicResponse | None:
         """Membuat admin default jika belum ada superuser di database.
+
         Return UserPublicResponse jika berhasil, None jika sudah ada superuser.
         """
         logger.info("Cek keberadaan superuser di database...")
@@ -27,7 +28,6 @@ class AdminUserService:
             return None
 
         logger.info("Superuser belum ada, membuat default admin...")
-        from app.schemas.sch_user import UserAdminSeed
 
         admin_seed = UserAdminSeed(
             username="admin",
