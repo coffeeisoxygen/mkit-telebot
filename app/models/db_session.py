@@ -25,5 +25,8 @@ class Session(Base):
         DateTime(timezone=True), default=datetime.now, nullable=False
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    expires_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     user: Mapped["User"] = relationship("User", back_populates="sessions")
