@@ -37,6 +37,11 @@ handlers:
     backtrace: true
     colorize: true
 
+  - sink: logs/telebot.log
+    level: "INFO"
+    format: "<level>{level: <8}</level>| <magenta>{name}</magenta>:<bold>{function}</bold>:<magenta>{line}</magenta> | <level>{message}</level> | <l>{extra}</>"
+    serialize: true
+
 extra:
   env: "override me please"
 # silent log from certain libraries

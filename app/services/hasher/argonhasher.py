@@ -16,6 +16,7 @@ class Argon2Hasher(IPasswordHasher):
         """Memverifikasi password dengan hash."""
         try:
             self.ph.verify(hashed_password, password)
-            return True
         except VerifyMismatchError:
             return False
+        else:
+            return True
