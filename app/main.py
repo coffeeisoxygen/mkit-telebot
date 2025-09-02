@@ -15,6 +15,9 @@ from app.api import setup_router
 
 from contextlib import asynccontextmanager
 from app.database import DatabaseSessionManager
+from app.services.users.srv_seed_admin import seed_default_admin
+from app.repositories.repo_user import UserRepository
+from app.services.hasher.argonhasher import Argon2Hasher
 
 
 # 1. Setup settings and logging
@@ -28,9 +31,17 @@ sessionmanager = DatabaseSessionManager(settings.DB.url)
 
 
 @asynccontextmanager
-async def lifespan(app):
+async def lifespan(app: FastAPI):
     logger.info("Application starting up.")
+
+    async with sessionmanager.session() as db_session:
+        repo = UserRepository(db_session)
+        hasher = Argon2Hasher()
+        admin_config = settings.ADM
+        await seed_default_admin(repo, hasher, admin_config)
+
     yield
+
     logger.info("Application shutting down.")
     await sessionmanager.close()
 
